@@ -1,0 +1,209 @@
+/* Projects Section Styles */
+.projects {
+    padding: var(--section-padding);
+    background-color: var(--off-white);
+    position: relative;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 40px;
+    margin-bottom: 60px;
+}
+
+.project-card {
+    background-color: white;
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    opacity: 0;
+    animation: fadeIn 0.8s forwards;
+    animation-delay: calc(var(--delay, 0) * 0.2s);
+}
+
+.project-card:nth-child(1) { --delay: 1; }
+.project-card:nth-child(2) { --delay: 2; }
+.project-card:nth-child(3) { --delay: 3; }
+
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--hover-shadow);
+}
+
+.project-image {
+    width: 100%;
+    height: 220px;
+    background: var(--gradient-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card:nth-child(2n) .project-image {
+    background: var(--gradient-2);
+}
+
+.project-card:nth-child(3n) .project-image {
+    background: var(--gradient-3);
+}
+
+.project-image i {
+    z-index: 1;
+    position: relative;
+}
+
+.project-image::before {
+    content: '';
+    position: absolute;
+    width: 150%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(45deg) translateX(-150%);
+    transition: transform 0.7s ease;
+}
+
+.project-card:hover .project-image::before {
+    transform: rotate(45deg) translateX(20%);
+}
+
+.project-content {
+    padding: 30px;
+}
+
+.project-card h3 {
+    margin-bottom: 10px;
+    color: var(--text-color);
+    font-size: 1.4rem;
+}
+
+.project-date {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: inline-block;
+    padding: 5px 15px;
+    background: rgba(94, 96, 206, 0.1);
+    border-radius: 50px;
+}
+
+.project-card:nth-child(2n) .project-date {
+    color: var(--secondary-color);
+    background: rgba(72, 191, 227, 0.1);
+}
+
+.project-card:nth-child(3n) .project-date {
+    color: var(--accent-color);
+    background: rgba(100, 223, 223, 0.1);
+}
+
+.project-card p {
+    color: var(--text-light);
+    margin-bottom: 20px;
+    line-height: 1.6;
+}
+
+.project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+}
+
+.tech-tag {
+    padding: 5px 12px;
+    background-color: rgba(94, 96, 206, 0.1);
+    color: var(--primary-color);
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.project-card:nth-child(2n) .tech-tag {
+    background-color: rgba(72, 191, 227, 0.1);
+    color: var(--secondary-color);
+}
+
+.project-card:nth-child(3n) .tech-tag {
+    background-color: rgba(100, 223, 223, 0.1);
+    color: var(--accent-color);
+}
+
+.tech-tag:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.project-links {
+    display: flex;
+    gap: 15px;
+}
+
+.project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    padding: 8px 20px;
+    border-radius: 50px;
+    background: rgba(94, 96, 206, 0.1);
+}
+
+.project-card:nth-child(2n) .project-link {
+    color: var(--secondary-color);
+    background: rgba(72, 191, 227, 0.1);
+}
+
+.project-card:nth-child(3n) .project-link {
+    color: var(--accent-color);
+    background: rgba(100, 223, 223, 0.1);
+}
+
+.project-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.github-cta {
+    text-align: center;
+    margin-top: 40px;
+    animation: fadeIn 1s forwards;
+    animation-delay: 0.6s;
+    opacity: 0;
+}
+
+/* Responsive Styles */
+@media screen and (max-width: 992px) {
+    .projects-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .project-content {
+        padding: 25px;
+    }
+
+    .project-image {
+        height: 180px;
+    }
+}
