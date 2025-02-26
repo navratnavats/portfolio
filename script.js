@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending...';
 
             try {
-                const response = await fetch('https://navratnavats-portfolio.onrender.com/send-email', {
+                const response = await fetch('https://portfolio-c62z.onrender.com/send-email', {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, subject, message })
