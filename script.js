@@ -13,23 +13,147 @@ document.addEventListener('DOMContentLoaded', () => {
     const typedTextElement = document.querySelector('.typed-text');
     let lastScrollTop = 0;
 
-    // Toggle mobile menu
-    if (hamburger) {
-        hamburger.addEventListener('click', () => {
+    // Responsive Navigation Function
+    function initResponsiveNavigation() {
+        // Create mobile navigation header and close button
+        const mobileNavClose = document.createElement('div');
+        mobileNavClose.classList.add('mobile-nav-close');
+        mobileNavClose.innerHTML = '&times;';
+        mobileNavClose.style.display = 'none';
+
+        const mobileNavHeader = document.createElement('div');
+        mobileNavHeader.classList.add('mobile-nav-header');
+        mobileNavHeader.innerHTML = `
+            <div class="mobile-nav-logo">NV</div>
+        `;
+        mobileNavHeader.appendChild(mobileNavClose);
+
+        // Create navigation overlay
+        const navOverlay = document.createElement('div');
+        navOverlay.classList.add('nav-overlay');
+        document.body.appendChild(navOverlay);
+
+        // Mobile Menu Toggle
+        function toggleMobileMenu() {
             hamburger.classList.toggle('active');
             navLinks.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+
+            // Add or remove mobile nav header when menu is opened/closed
+            if (navLinks.classList.contains('active')) {
+                // Insert mobile nav header at the beginning of nav links
+                if (!navLinks.contains(mobileNavHeader)) {
+                    navLinks.insertBefore(mobileNavHeader, navLinks.firstChild);
+                }
+                mobileNavHeader.style.display = 'flex';
+                mobileNavClose.style.display = 'block';
+
+                // Prevent body scrolling
+                document.body.classList.add('menu-open');
+            } else {
+                // Restore body scroll
+                document.body.classList.remove('menu-open');
+            }
+        }
+
+        // Close mobile menu when a nav link is clicked
+        function closeMenuOnLinkClick(e) {
+            if (e.target.tagName === 'A') {
+                // First close the menu
+                if (window.innerWidth <= 768) {
+                    toggleMobileMenu();
+                }
+
+                // Handle smooth scrolling separately
+                e.preventDefault();
+                const targetId = e.target.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    // Remove active state from all links
+                    navLinks.querySelectorAll('a').forEach(link => {
+                        link.classList.remove('active');
+                    });
+
+                    // Add active state to clicked link
+                    e.target.classList.add('active');
+
+                    // Scroll to the target section with offset for header
+                    const headerHeight = header.offsetHeight;
+                    const targetPosition = targetElement.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+                    // Small delay to ensure menu is closed before scrolling
+                    setTimeout(() => {
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }, 300);
+                }
+            }
+        }
+
+        // Responsive Navigation Visibility
+        function checkNavResponsiveness() {
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // Mobile setup
+                hamburger.style.display = 'block';
+                navLinks.style.display = 'flex';
+
+                // Initial mobile state
+                if (!navLinks.classList.contains('active')) {
+                    hamburger.classList.remove('active');
+                    navOverlay.classList.remove('active');
+                    document.body.classList.remove('menu-open');
+                }
+            } else {
+                // Desktop setup
+                hamburger.style.display = 'none';
+                navLinks.style.display = 'flex';
+                navLinks.classList.remove('active');
+                navOverlay.classList.remove('active');
+
+                // Restore body styles
+                document.body.classList.remove('menu-open');
+
+                // Remove mobile header from desktop view
+                if (mobileNavHeader.parentNode) {
+                    mobileNavHeader.parentNode.removeChild(mobileNavHeader);
+                }
+            }
+        }
+
+        // Event Listeners
+        if (hamburger) {
+            hamburger.addEventListener('click', toggleMobileMenu);
+        }
+
+        if (navLinks) {
+            navLinks.addEventListener('click', closeMenuOnLinkClick);
+        }
+
+        // Add click event to close button
+        mobileNavClose.addEventListener('click', toggleMobileMenu);
+
+        // Add click event to mobile nav header (blue part)
+        mobileNavHeader.addEventListener('click', (e) => {
+            if (e.target === mobileNavHeader) {
+                toggleMobileMenu();
+            }
         });
+
+        // Close menu when clicking on overlay
+        navOverlay.addEventListener('click', toggleMobileMenu);
+
+        // Initial check and add resize listener
+        checkNavResponsiveness();
+        window.addEventListener('resize', checkNavResponsiveness);
     }
 
-    // Close mobile menu when clicking on a nav link
-    navLinks.addEventListener('click', (e) => {
-        if (e.target.tagName === 'A') {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
-            e.target.classList.add('active');
-        }
-    });
+    // Initialize Responsive Navigation
+    initResponsiveNavigation();
 
     // Header scroll effects
     window.addEventListener('scroll', () => {
@@ -69,6 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
+            // Skip if it's a mobile menu item (handled separately)
+            if (window.innerWidth <= 768 && navLinks.contains(this)) {
+                return;
+            }
+
             e.preventDefault();
             const targetElement = document.querySelector(this.getAttribute('href'));
             if (targetElement) {
@@ -86,7 +215,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Typing effect for hero section
     if (typedTextElement) {
-        const phrases = [' Backend Development', ' Microservices Architecture', ' Cloud Solutions', ' System Designing', ' Frontend Development'];
+        const phrases = [
+            ' Backend Development',
+            ' Microservices Architecture',
+            ' Cloud Solutions',
+            ' System Designing',
+            ' Frontend Development'
+        ];
         let phraseIndex = 0, charIndex = 0, isDeleting = false, typingDelay = 100;
 
         function typeEffect() {
@@ -110,18 +245,22 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(typeEffect, 1000);
     }
 
-    // Fetch GitHub repositories
-    const fetchGithubRepos = async () => {
-        try {
-            const username = 'navratnavats';
-            const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=3`);
-            if (!response.ok) throw new Error('Failed to fetch repositories');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching GitHub repositories:', error);
-            return [];
+    // Show form messages
+    function showFormMessage(message, type) {
+        const existingMessage = document.querySelector('.form-message');
+        if (existingMessage) {
+            existingMessage.remove();
         }
-    };
+
+        const messageElement = document.createElement('div');
+        messageElement.className = `form-message ${type}`;
+        messageElement.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+
+        if (contactForm) {
+            contactForm.after(messageElement);
+            setTimeout(() => messageElement.remove(), 5000);
+        }
+    }
 
     // Contact Form Submission
     if (contactForm) {
@@ -133,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const subject = document.getElementById('subject').value.trim();
             const message = document.getElementById('message').value.trim();
 
+            // Form validation
             if (!name || !email || !subject || !message) {
                 showFormMessage('Please fill in all fields', 'error');
                 return;
@@ -143,7 +283,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Update button state to show loading
             const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sending...';
 
@@ -154,38 +296,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ name, email, subject, message })
                 });
 
-
+                // Handle response
                 const result = await response.json();
-                showFormMessage(response.ok ? 'Your message has been sent successfully!' : result.error || 'Failed to send message.', response.ok ? 'success' : 'error');
 
-                if (response.ok) contactForm.reset();
+                if (response.ok) {
+                    showFormMessage('Your message has been sent successfully!', 'success');
+                    contactForm.reset();
+                } else {
+                    showFormMessage(result.error || 'Failed to send message.', 'error');
+                }
             } catch (error) {
                 showFormMessage('An error occurred. Please try again.', 'error');
                 console.error('Error sending email:', error);
             } finally {
+                // Reset button state
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = 'Send Message';
+                submitBtn.innerHTML = originalBtnText;
             }
         });
     }
 
-    // Show form messages
-    function showFormMessage(message, type) {
-        const existingMessage = document.querySelector('.form-message');
-        existingMessage?.remove();
-
-        const messageElement = document.createElement('div');
-        messageElement.className = `form-message ${type}`;
-        messageElement.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
-
-        contactForm?.after(messageElement);
-        setTimeout(() => messageElement.remove(), 5000);
+    // Update copyright year
+    const yearElement = document.querySelector('.current-year');
+    if (yearElement) {
+        yearElement.textContent = new Date().getFullYear();
     }
-
-    // Initialize all functions
-    const init = () => {
-        fetchGithubRepos();
-    };
-
-    init();
 });
